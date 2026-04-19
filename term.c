@@ -109,6 +109,7 @@ void term_init(Term *t, int px_w, int px_h, int cell_w, int cell_h) {
   t->fg = DEFAULT_FG;
   t->bg = DEFAULT_BG;
   t->cursor_visible = true;
+  t->mode_autowrap = true; /* Standard VT100 behavior */
   t->cells = calloc((size_t)(t->cols * HIST_MAX), sizeof(Cell));
   t->cells_alt = calloc((size_t)(t->cols * t->rows), sizeof(Cell));
   t->dirty = calloc((size_t)t->rows, sizeof(bool));
@@ -136,13 +137,18 @@ void term_free(Term *t) {
 static void putchar_at(Term *t, uint32_t code) {
   int w = font_wcwidth(code);
   if (t->cx + w > t->cols) {
-    /* Wrap */
-    t->cx = 0;
-    t->dirty[t->cy] = true;
-    if (t->cy == t->scroll_bot)
-      scroll_up(t, t->scroll_top, t->scroll_bot, 1);
-    else
-      t->cy++;
+    if (t->mode_autowrap) {
+      /* Wrap to next line */
+      t->cx = 0;
+      t->dirty[t->cy] = true;
+      if (t->cy == t->scroll_bot)
+        scroll_up(t, t->scroll_top, t->scroll_bot, 1);
+      else
+        t->cy++;
+    } else {
+      /* Wrap disabled: clip characters at the last column */
+      t->cx = t->cols - w;
+    }
   }
   if (t->cy > t->scroll_bot) {
     scroll_up(t, t->scroll_top, t->scroll_bot, 1);
@@ -346,6 +352,8 @@ static void csi_dispatch(Term *t, char fin) {
   case 'h':
     if (t->priv && rp0 == 25)
       t->cursor_visible = true;
+    if (t->priv && rp0 == 7)
+      t->mode_autowrap = true;
     if (t->priv && rp0 == 1049 && !t->use_alt_screen) {
       Cell *tmp = t->cells;
       t->cells = t->cells_alt;
@@ -362,6 +370,8 @@ static void csi_dispatch(Term *t, char fin) {
       t->cursor_visible = false;
       t->dirty[t->cy] = true;
     }
+    if (t->priv && rp0 == 7)
+      t->mode_autowrap = false;
     if (t->priv && rp0 == 1049 && t->use_alt_screen) {
       Cell *tmp = t->cells;
       t->cells = t->cells_alt;

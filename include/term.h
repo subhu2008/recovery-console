@@ -53,6 +53,7 @@ typedef struct Term {
   bool use_alt_screen;
   bool charset_gfx;
   bool screen_dirty;
+  bool mode_autowrap; /* DECAWM */
 
   /* Escape sequence parser */
   EscState state;
