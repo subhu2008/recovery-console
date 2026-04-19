@@ -46,6 +46,7 @@ typedef struct Term {
   int saved_cx, saved_cy;
   uint32_t saved_fg, saved_bg;
   uint8_t saved_attr;
+  int saved_scroll_top, saved_scroll_bot;
 
   Cell *cells, *cells_alt;
   bool *dirty;

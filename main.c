@@ -29,6 +29,35 @@ static volatile sig_atomic_t g_vt_rel = 0;  /* deferred SIGUSR1 */
 static volatile sig_atomic_t g_vt_acq = 0;  /* deferred SIGUSR2 */
 static volatile sig_atomic_t g_vt_lost = 0; /* VT fd gone (hard detach) */
 
+/* Scrollback replay buffer: stores raw PTY bytes for --attach clients */
+#define REPLAY_BUF_SZ (256 * 1024)
+static uint8_t  g_replay_buf[REPLAY_BUF_SZ];
+static size_t   g_replay_head = 0; /* next write pos (ring) */
+static size_t   g_replay_len  = 0; /* bytes stored (capped at REPLAY_BUF_SZ) */
+
+static void replay_append(const uint8_t *data, size_t n) {
+  for (size_t i = 0; i < n; i++) {
+    g_replay_buf[g_replay_head] = data[i];
+    g_replay_head = (g_replay_head + 1) % REPLAY_BUF_SZ;
+    if (g_replay_len < REPLAY_BUF_SZ)
+      g_replay_len++;
+  }
+}
+
+static void replay_send(int fd) {
+  if (g_replay_len == 0)
+    return;
+  if (g_replay_len < REPLAY_BUF_SZ) {
+    /* Buffer not yet wrapped: linear from index 0 */
+    (void)write(fd, g_replay_buf, g_replay_len);
+  } else {
+    /* Buffer wrapped: oldest byte is at g_replay_head */
+    size_t tail = REPLAY_BUF_SZ - g_replay_head;
+    (void)write(fd, g_replay_buf + g_replay_head, tail);
+    (void)write(fd, g_replay_buf, g_replay_head);
+  }
+}
+
 /*  Saved tty state  */
 static struct termios g_saved_tio;
 static bool g_tio_saved = false;
@@ -343,6 +372,8 @@ int main(int argc, char **argv) {
       if (cli_fd >= 0)
         close(cli_fd);
       cli_fd = accept(srv_fd, NULL, NULL);
+      if (cli_fd >= 0)
+        replay_send(cli_fd); /* send scrollback to new attach client */
     }
 
     /*  Stdin (is_service mode)  */
@@ -379,6 +410,7 @@ int main(int argc, char **argv) {
       ssize_t n = read(pty_fd, b, sizeof(b));
       if (n > 0) {
         term_write(&term, b, (int)n);
+        replay_append(b, (size_t)n);
         if (!is_blanked)
           display_render(&disp, &term);
         if (is_service)

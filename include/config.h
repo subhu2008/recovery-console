@@ -25,7 +25,7 @@
 /* Shadow buffer: render to malloc'd buffer, memcpy to scanout on kick.
  * Eliminates tearing on video-mode LCD panels. Costs ~10MB extra RAM.
  * Disable (0) for command-mode AMOLED or memory-constrained devices. */
-#define USE_SHADOW_BUFFER 0
+#define USE_SHADOW_BUFFER 1
 
 /* CRTC blank: fully disable CRTC on power-button blank.
  * Required for LCD panels where backlight stays on with memset-only blank.
@@ -46,7 +46,7 @@
 #define FB_MINOR 0
 
 #define DEFAULT_SHELL "/bin/sh"
-#define TERM_ENV "xterm-256color"
+#define TERM_ENV "linux"
 
 #define IO_BUFSZ 32768
 #define SELECT_US 10000

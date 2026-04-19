@@ -106,6 +106,8 @@ void term_init(Term *t, int px_w, int px_h, int cell_w, int cell_h) {
   t->view_row = 0;
   t->scroll_top = 0;
   t->scroll_bot = t->rows - 1;
+  t->saved_scroll_top = 0;
+  t->saved_scroll_bot = t->rows - 1;
   t->fg = DEFAULT_FG;
   t->bg = DEFAULT_BG;
   t->cursor_visible = true;
@@ -274,6 +276,8 @@ static void csi_dispatch(Term *t, char fin) {
     t->saved_fg = t->fg;
     t->saved_bg = t->bg;
     t->saved_attr = t->attr;
+    t->saved_scroll_top = t->scroll_top;
+    t->saved_scroll_bot = t->scroll_bot;
     break;
   case 'u': /* restore cursor */
     t->cx = t->saved_cx;
@@ -281,6 +285,8 @@ static void csi_dispatch(Term *t, char fin) {
     t->fg = t->saved_fg;
     t->bg = t->saved_bg;
     t->attr = t->saved_attr;
+    t->scroll_top = t->saved_scroll_top;
+    t->scroll_bot = t->saved_scroll_bot;
     break;
   case 'm':
     /* SGR: colors and attributes */
@@ -504,6 +510,8 @@ void term_write(Term *t, const uint8_t *buf, int n) {
         t->saved_fg = t->fg;
         t->saved_bg = t->bg;
         t->saved_attr = t->attr;
+        t->saved_scroll_top = t->scroll_top;
+        t->saved_scroll_bot = t->scroll_bot;
         t->state = ST_GROUND;
       } else if (ch == '8') {
         /* DECRC restore cursor */
@@ -512,6 +520,8 @@ void term_write(Term *t, const uint8_t *buf, int n) {
         t->fg = t->saved_fg;
         t->bg = t->saved_bg;
         t->attr = t->saved_attr;
+        t->scroll_top = t->saved_scroll_top;
+        t->scroll_bot = t->saved_scroll_bot;
         t->state = ST_GROUND;
       } else if (ch == 'c') {
         /* RIS - full reset */
