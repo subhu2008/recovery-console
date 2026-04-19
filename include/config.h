@@ -47,7 +47,7 @@
 #define FB_MINOR 0
 
 #define DEFAULT_SHELL "/bin/sh"
-#define TERM_ENV "linux"
+#define TERM_ENV "xterm-256color"
 
 #define IO_BUFSZ 32768
 #define SELECT_US 10000
