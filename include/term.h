@@ -65,6 +65,8 @@ typedef struct Term {
   /* UTF-8 decoder */
   uint32_t utf8_code;
   int utf8_expect;
+
+  int pty_fd; /* for writing DSR responses back to shell */
 } Term;
 
 void term_init(Term *t, int px_w, int px_h, int cell_w, int cell_h);

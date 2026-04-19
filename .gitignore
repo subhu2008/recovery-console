@@ -6,3 +6,4 @@ deps/
 *.rej
 *.patch
 *.diff
+*.txt

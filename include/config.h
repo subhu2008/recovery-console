@@ -6,9 +6,9 @@
 #include <stdio.h>
 
 /* Cell height in pixels; width is derived from font metrics */
-#define FONT_SIZE 19
+#define FONT_SIZE 26
 
-#define MARGIN_TOP 70
+#define MARGIN_TOP 90
 #define MARGIN_BOTTOM 20
 #define MARGIN_LEFT 20
 #define MARGIN_RIGHT 20
@@ -20,7 +20,18 @@
 #define CURSOR_COLOR 15
 
 /* Display format: 0=RGB, 1=BGR */
-#define COLOR_BGR 1
+#define COLOR_BGR 0
+
+/* Shadow buffer: render to malloc'd buffer, memcpy to scanout on kick.
+ * Eliminates tearing on video-mode LCD panels. Costs ~10MB extra RAM.
+ * Disable (0) for command-mode AMOLED or memory-constrained devices. */
+#define USE_SHADOW_BUFFER 0
+
+/* CRTC blank: fully disable CRTC on power-button blank.
+ * Required for LCD panels where backlight stays on with memset-only blank.
+ * Do NOT enable for AMOLED - CRTC disable/re-enable breaks MTK panels.
+ * Default: 0 (memset-to-black, works everywhere). */
+#define USE_CRTC_BLANK 0
 
 /* Hardware */
 #define DRM_DEVICE "/dev/dri/card0"
@@ -44,10 +55,13 @@
 #define SOCKET_PATH "/tmp/rc.sock"
 
 #define BACKLIGHT_PATH                                                         \
-  "/sys/devices/platform/soc/1a00000.qcom,mdss_mdp/"                           \
-  "1a00000.qcom,mdss_mdp:qcom,mdss_fb_primary/leds/lcd-backlight/brightness"
-#define BACKLIGHT_VAL 150
+  "/sys/devices/platform/soc/soc:mtk_leds/leds/lcd-backlight/brightness"
+#define BACKLIGHT_VAL 255
 
-#define LOG(fmt, ...) fprintf(stderr, "[rc] " fmt "\n", ##__VA_ARGS__)
+#define LOG(fmt, ...)                                                          \
+  do {                                                                         \
+    fprintf(stderr, "[rc] " fmt "\n", ##__VA_ARGS__);                          \
+    fflush(stderr);                                                            \
+  } while (0)
 
 #endif

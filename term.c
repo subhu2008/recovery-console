@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define HIST_MAX 512
 
@@ -374,8 +375,18 @@ static void csi_dispatch(Term *t, char fin) {
         t->dirty[r] = true;
     }
     break;
-  case 'n':   /* DSR - device status report */
-    break;    /* no-op for display-only use */
+  case 'n': { /* DSR - device status report */
+    char resp[32];
+    int len = 0;
+    if (rp0 == 5) { /* device OK */
+      len = snprintf(resp, sizeof(resp), "\033[0n");
+    } else if (rp0 == 6) { /* CPR - cursor position report */
+      len = snprintf(resp, sizeof(resp), "\033[%d;%dR", t->cy + 1, t->cx + 1);
+    }
+    if (len > 0 && t->pty_fd >= 0)
+      (void)write(t->pty_fd, resp, (size_t)len);
+    break;
+  }
   case '@': { /* ICH - insert characters */
     int n = p0 > t->cols - t->cx ? t->cols - t->cx : p0;
     memmove(cell_at(t, t->view_row + t->cy, t->cx + n),
