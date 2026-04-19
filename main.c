@@ -20,6 +20,7 @@
 #include <sys/un.h>
 #include <sys/wait.h>
 #include <termios.h>
+#include <time.h>
 #include <unistd.h>
 
 /*  Signal flags  */
@@ -31,9 +32,9 @@ static volatile sig_atomic_t g_vt_lost = 0; /* VT fd gone (hard detach) */
 
 /* Scrollback replay buffer: stores raw PTY bytes for --attach clients */
 #define REPLAY_BUF_SZ (256 * 1024)
-static uint8_t  g_replay_buf[REPLAY_BUF_SZ];
-static size_t   g_replay_head = 0; /* next write pos (ring) */
-static size_t   g_replay_len  = 0; /* bytes stored (capped at REPLAY_BUF_SZ) */
+static uint8_t g_replay_buf[REPLAY_BUF_SZ];
+static size_t g_replay_head = 0; /* next write pos (ring) */
+static size_t g_replay_len = 0;  /* bytes stored (capped at REPLAY_BUF_SZ) */
 
 static void replay_append(const uint8_t *data, size_t n) {
   for (size_t i = 0; i < n; i++) {
@@ -216,6 +217,7 @@ int main(int argc, char **argv) {
   Term term = {0};
   int pty_fd = -1, srv_fd = -1, cli_fd = -1;
   bool is_blanked = false;
+  int hold_vol_up = 0, hold_vol_down = 0;
 
   if (!display_init(&disp))
     return 1;
@@ -348,6 +350,23 @@ int main(int argc, char **argv) {
     }
 
   handle_signals:
+    /*  Software Key Repeat (Volume buttons)  */
+    if (hold_vol_up > 0 || hold_vol_down > 0) {
+      static uint64_t last_tick = 0;
+      struct timespec ts;
+      clock_gettime(CLOCK_MONOTONIC, &ts);
+      uint64_t now =
+          (uint64_t)ts.tv_sec * 1000 + (uint64_t)ts.tv_nsec / 1000000;
+      if (now - last_tick > 50) { /* 20Hz repeat */
+        if (hold_vol_up)
+          term_scroll(&term, -3);
+        if (hold_vol_down)
+          term_scroll(&term, 3);
+        display_render(&disp, &term);
+        last_tick = now;
+      }
+    }
+
     /*  Deferred VT release (SIGUSR1)  */
     if (g_vt_rel) {
       g_vt_rel = 0;
@@ -454,14 +473,24 @@ int main(int argc, char **argv) {
       }
 
       /* Volume keys: scroll the terminal view. */
-      if (ev.code == KEY_VOLUMEUP && ev.value >= 1) {
-        term_scroll(&term, -3);
-        display_render(&disp, &term);
+      if (ev.code == KEY_VOLUMEUP) {
+        if (ev.value == 1) { /* initial click */
+          term_scroll(&term, -3);
+          display_render(&disp, &term);
+          hold_vol_up = 1;
+        } else if (ev.value == 0) {
+          hold_vol_up = 0;
+        }
         continue;
       }
-      if (ev.code == KEY_VOLUMEDOWN && ev.value >= 1) {
-        term_scroll(&term, 3);
-        display_render(&disp, &term);
+      if (ev.code == KEY_VOLUMEDOWN) {
+        if (ev.value == 1) {
+          term_scroll(&term, 3);
+          display_render(&disp, &term);
+          hold_vol_down = 1;
+        } else if (ev.value == 0) {
+          hold_vol_down = 0;
+        }
         continue;
       }
 
