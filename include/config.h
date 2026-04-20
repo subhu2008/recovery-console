@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define VERSION "v1.0.0-m55xq-qcom"
+#define VERSION "v1.0.1-m55xq-qcom"
 
 /* Cell height in pixels; width is derived from font metrics */
 #define FONT_SIZE 24
@@ -14,7 +14,7 @@
 #define MARGIN_BOTTOM 60
 #define MARGIN_LEFT 24
 #define MARGIN_RIGHT 24
-#define ROTATION 0         /* 0=0deg, 1=90deg, 2=180deg, 3=270deg CW */
+#define ROTATION 1         /* 0=0deg, 1=90deg, 2=180deg, 3=270deg CW */
 #define DISPLAY_TIMEOUT 360 /* seconds of inactivity before sleep */
 
 /* VGA palette defaults (indices into 256-color palette) */
