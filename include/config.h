@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define VERSION "v1.0.0"
+#define VERSION "v1.0.0-m55xq-qcom"
 
 /* Cell height in pixels; width is derived from font metrics */
 #define FONT_SIZE 24
