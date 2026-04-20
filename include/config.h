@@ -8,7 +8,7 @@
 #define VERSION "v1.0.0"
 
 /* Cell height in pixels; width is derived from font metrics */
-#define FONT_SIZE 22
+#define FONT_SIZE 17
 
 #define MARGIN_TOP 95
 #define MARGIN_BOTTOM 45
