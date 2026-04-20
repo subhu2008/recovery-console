@@ -8,14 +8,14 @@
 #define VERSION "v1.0.0"
 
 /* Cell height in pixels; width is derived from font metrics */
-#define FONT_SIZE 17
+#define FONT_SIZE 24
 
-#define MARGIN_TOP 95
-#define MARGIN_BOTTOM 45
-#define MARGIN_LEFT 10
-#define MARGIN_RIGHT 10
+#define MARGIN_TOP 120
+#define MARGIN_BOTTOM 60
+#define MARGIN_LEFT 24
+#define MARGIN_RIGHT 24
 #define ROTATION 0         /* 0=0deg, 1=90deg, 2=180deg, 3=270deg CW */
-#define DISPLAY_TIMEOUT 60 /* seconds of inactivity before sleep */
+#define DISPLAY_TIMEOUT 360 /* seconds of inactivity before sleep */
 
 /* VGA palette defaults (indices into 256-color palette) */
 #define DEFAULT_FG 7
@@ -28,7 +28,7 @@
 /* Shadow buffer: render to malloc'd buffer, memcpy to scanout on kick.
  * Eliminates tearing on video-mode LCD panels. Costs ~10MB extra RAM.
  * Disable (0) for command-mode AMOLED or memory-constrained devices. */
-#define USE_SHADOW_BUFFER 1
+#define USE_SHADOW_BUFFER 0
 
 /* CRTC blank: fully disable CRTC on power-button blank.
  * Required for LCD panels where backlight stays on with memset-only blank.
