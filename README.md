@@ -10,6 +10,23 @@ A complete replacement for the standard Android Recovery UI. It provides a robus
 - **Intuitive Controls**: Volume buttons for scrolling and full physical keyboard support.
 - **Low-Level**: Operates directly on top of the kernel, independent of Android framework services.
 
+## 🖼️ Gallery
+
+![Droidspaces Ubuntu DRM](gallery/droidspaces-drm-ubuntu.jpg)
+*Droidspaces running Ubuntu on top of Recovery Console (DRM)*
+
+![Systemd Boot DRM](gallery/systemd-with-keyboard-drm.jpg)
+*Systemd boot sequence with external keyboard support*
+
+![XFCE on FBdev](gallery/x11-xfce-fb.jpg)
+*XFCE Desktop environment running over traditional Framebuffer*
+
+![Chill Guy ASCII Art](gallery/direct-shell-chill-guy-ascii-art.jpg)
+*Interactive shell displaying ASCII art*
+
+![Systemd on FB](gallery/systemd-with-fb.jpg)
+*Systemd logs on a non-DRM framebuffer device*
+
 ## ⚠️ No Universal Build!
 
 This project is **not universal**. Because Android kernels vary wildly in how they handle display hardware (DRM vs FBdev), backlight sysfs paths, screen rotations, and notches, you **must fork this repository** and customize it for your specific device.
