@@ -58,7 +58,7 @@
 #define SOCKET_PATH "/tmp/rc.sock"
 
 #define BACKLIGHT_PATH                                                         \
-  "/sys/devices/platform/soc/soc:mtk_leds/leds/lcd-backlight/brightness"
+  "/sys/devices/platform/soc/ae00000.qcom,mdss_mdp/backlight/panel0-backlight/brightness"
 #define BACKLIGHT_VAL 200
 
 #define LOG(fmt, ...)                                                          \
