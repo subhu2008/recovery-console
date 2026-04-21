@@ -16,7 +16,8 @@
 #include <unistd.h>
 
 /* Force backlight/brightness to the level defined in config.h */
-static void backlight_wake(void) {
+/* Force backlight/brightness to the level defined in config.h */
+void backlight_wake(void) {
   FILE *bf = fopen(BACKLIGHT_PATH, "w");
   if (bf) {
     fprintf(bf, "%d\n", BACKLIGHT_VAL);
@@ -520,8 +521,8 @@ void display_blank(DisplayDev *d, bool blank) {
     drm_set_power(d, !blank);
   } else {
     fbdev_blank(d, blank);
-    backlight_set(blank ? 0 : BACKLIGHT_VAL);
   }
+  backlight_set(blank ? 0 : BACKLIGHT_VAL);
 }
 
 /*  display_kick  */
