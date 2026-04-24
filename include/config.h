@@ -8,10 +8,10 @@
 #define VERSION "v1.0.2-m55xq-qcom"
 
 /* Cell height in pixels; width is derived from font metrics */
-#define FONT_SIZE 18
+#define FONT_SIZE 20
 
 #define MARGIN_TOP 120
-#define MARGIN_BOTTOM 120
+#define MARGIN_BOTTOM 60
 #define MARGIN_LEFT 24
 #define MARGIN_RIGHT 24
 #define ROTATION 1         /* 0=0deg, 1=90deg, 2=180deg, 3=270deg CW */
